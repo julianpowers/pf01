@@ -1,0 +1,63 @@
+<html>
+<head>
+	<title>pf01: Education Project</title>
+	<style type="text/css">
+		body {
+			padding: 0px;
+			margin: 0px;
+			background-color: #ccc;
+		}
+	</style>
+</head>
+<body onload="new p.pf01">
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="http://code.createjs.com/easeljs-0.6.1.min.js"></script>
+<script type="text/javascript">
+	//java here
+
+	//namespacing & shortcuts
+	var c = createjs;
+	var plasticflesh = {};
+	var p = plasticflesh;
+	var bgRect = new c.Shape;
+	var centeredContainer = new c.Container;
+	var placeholderDot = new c.Shape;
+	
+	//create our app
+	p.pf01 = function() {
+		
+		var canvas = document.getElementById("canvas");
+		var stage = new c.Stage(canvas);
+		
+		c.Ticker.setFPS(60);
+		c.Ticker.addListener(stage);
+		
+		stage.onTick = function(e) {
+			// console.log("stage tick here!",e);
+		}
+		
+		function resize() {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			
+			bgRect.graphics.clear().beginFill("333").drawRect(0, 0, canvas.width, canvas.height);
+			
+			centeredContainer.x = canvas.width / 2;
+			centeredContainer.y = canvas.height / 2;
+		}
+		resize();
+		window.onresize = resize;
+		
+		stage.onClick = function(e) {
+			console.log("stage click here!", e);
+		}
+		stage.addChild(bgRect);
+		placeholderDot.graphics.beginFill("f00").drawCircle(0, 0, 30);
+		centeredContainer.addChild(placeholderDot);
+		stage.addChild(centeredContainer);
+	}
+	
+
+</script>
+</body>
+</html>
