@@ -9,55 +9,56 @@
 		}
 	</style>
 </head>
-<body onload="new p.pf01">
+<body onload="new pf.pf01">
 <canvas id="canvas"></canvas>
 <script type="text/javascript" src="http://code.createjs.com/easeljs-0.6.1.min.js"></script>
 <script type="text/javascript">
-	//java here
 
-	//namespacing & shortcuts
-	var c = createjs;
-	var plasticflesh = {};
-	var p = plasticflesh;
-	var bgRect = new c.Shape;
-	var centeredContainer = new c.Container;
-	var placeholderDot = new c.Shape;
+var c = createjs,
+	plasticflesh = {},
+	pf = plasticflesh,
+	p;
+
+pf.pf01 = function() {
+
+	var canvas = document.getElementById("canvas");
+		stage = new c.Stage(canvas),
+		bgRect = new c.Shape,
+		centeredContainer = new c.Container;
+				
+	function resize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;	
+		bgRect.graphics.clear().beginFill("555").drawRect(0, 0, canvas.width, canvas.height);
+		centeredContainer.x = canvas.width / 2;
+		centeredContainer.y = canvas.height / 2;
+	}
+
+	resize();
+	window.onresize = resize;
+	c.Ticker.setFPS(30);
+	c.Ticker.addListener(stage);
+	stage.addChild(bgRect);
+	stage.addChild(centeredContainer);
+	centeredContainer.addChild(new pf.Noun);
+}
 	
-	//create our app
-	p.pf01 = function() {
+	pf.Noun = function() { this.initialize(); };
+	p = pf.Noun.prototype = new c.Container;
+	p.Container_initialize = p.initialize;
+	pf.Noun.libraryAnimSpriteSheet = new c.SpriteSheet({"images": ["pf01-thing01.png"], "frames": [[2, 2, 124, 124, 0, -10, -3], [130, 2, 124, 124, 0, -10, -3], [258, 2, 124, 124, 0, -10, -3]], "animations": {"all": {"frames": [0, 1, 2]}}});
+	p.initialize = function() {
 		
-		var canvas = document.getElementById("canvas");
-		var stage = new c.Stage(canvas);
+		this.Container_initialize();
 		
-		c.Ticker.setFPS(60);
-		c.Ticker.addListener(stage);
-		
-		stage.onTick = function(e) {
-			// console.log("stage tick here!",e);
-		}
-		
-		function resize() {
-			canvas.width = window.innerWidth;
-			canvas.height = window.innerHeight;
+		var noun = this,
+			libraryAnim = new c.BitmapAnimation(pf.Noun.libraryAnimSpriteSheet);
 			
-			bgRect.graphics.clear().beginFill("333").drawRect(0, 0, canvas.width, canvas.height);
-			
-			centeredContainer.x = canvas.width / 2;
-			centeredContainer.y = canvas.height / 2;
-		}
-		resize();
-		window.onresize = resize;
-		
-		stage.onClick = function(e) {
-			console.log("stage click here!", e);
-		}
-		stage.addChild(bgRect);
-		placeholderDot.graphics.beginFill("f00").drawCircle(0, 0, 30);
-		centeredContainer.addChild(placeholderDot);
-		stage.addChild(centeredContainer);
+			noun.addChild(libraryAnim);
+			libraryAnim.gotoAndStop(Math.floor(Math.random() * libraryAnim.spriteSheet._numFrames));
 	}
 	
-
+	
 </script>
 </body>
 </html>
