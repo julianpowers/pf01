@@ -13,6 +13,7 @@
 <canvas id="canvas"></canvas>
 <script type="text/javascript" src="http://code.createjs.com/easeljs-0.6.1.min.js"></script>
 <script type="text/javascript" src="http://code.createjs.com/tweenjs-0.4.1.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script type="text/javascript">
 
 var c = createjs,
@@ -41,6 +42,10 @@ pf.pf01 = function() {
 		noun.y = Math.random()*200 - Math.random()*200;
 		noun.rotation = Math.random()*30 - Math.random()*30;
 		centeredContainer.addChild(noun);
+		//wait 2 seconds, dematerialize noun
+		_.delay(function() {
+			noun.dematerialize();
+		}, 2000);
 
 	}
 
@@ -48,7 +53,13 @@ pf.pf01 = function() {
 			spawnNoun();
 	}
 
+	function onTick() {
+		if (Math.random() < .02) {
+			spawnNoun();
+		}
+	}
 
+	//canvas
 	resize();
 	window.onresize = resize;
 	c.Ticker.setFPS(30);
@@ -56,27 +67,28 @@ pf.pf01 = function() {
 	stage.addChild(bgRect);
 	stage.addChild(centeredContainer);
 	bgRect.onPress = onPress;
+	stage.onTick = onTick;
 
 }
 	
 	pf.Noun = function() { this.initialize(); };
 	p = pf.Noun.prototype = new c.Container;
 	p.Container_initialize = p.initialize;
-	pf.Noun.libraryAnimSpriteSheet = new c.SpriteSheet({"images": ["pf01-thing01.png"], "frames": [[4, 4, 120, 120, 0, 32, 43], [132, 4, 120, 120, 0, 32, 43], [260, 4, 120, 120, 0, 32, 43]], "animations": {"all": {"frames": [0, 1, 2]}}});
 	p.initialize = function() {
 		
 		this.Container_initialize();
 		
 		var noun = this,
-			libraryAnim = new c.BitmapAnimation(pf.Noun.libraryAnimSpriteSheet);
+			libraryAnim = new c.BitmapAnimation(pf.Noun.libraryAnimSpriteSheet),
+			puffAnim = new c.BitmapAnimation(pf.Noun.puffAnimSpriteSheet);
 			
 		function materialize() {
-			c.Tween.get(libraryAnim).to({scaleX: 1, scaleY: 1}, 1000, c.Ease.quintOut);
+			c.Tween.get(libraryAnim, {onChange: matchPuffFrametoLibraryScale}).to({scaleX: 1, scaleY: 1}, 800, c.Ease.quintIn);
 
 		}		
 		
 		function dematerialize() {
-			c.Tween.get(libraryAnim).to({scaleX: 0, scaleY: 0}, 1000, c.Ease.quintOut).call(onDematerializeComplete);
+			c.Tween.get(libraryAnim, {onChange: matchPuffFrametoLibraryScale}).to({scaleX: 0, scaleY: 0}, 800, c.Ease.quintOut).call(onDematerializeComplete);
 		}
 
 		function onDematerializeComplete() {
@@ -87,13 +99,30 @@ pf.pf01 = function() {
 			dematerialize();
 		}
 
+		function matchPuffFrametoLibraryScale() {
+			var frame = Math.floor(puffAnim.spriteSheet.getNumFrames() * libraryAnim.scaleX);
+			puffAnim.gotoAndStop(frame);
+		}
+
+		//public functions
 		libraryAnim.scaleX = libraryAnim.scaleY = 0;		
 		noun.addChild(libraryAnim);
 		libraryAnim.gotoAndStop(Math.floor(Math.random() * libraryAnim.spriteSheet.getNumFrames()));
 		materialize();
 		noun.onPress = onPress;
+		noun.addChild(puffAnim);
+		noun.dematerialize = dematerialize;
 	}
 	
+	//faces sprite sheet
+	pf.Noun.libraryAnimSpriteSheet = new c.SpriteSheet({"images": ["pf01-thing01.png"], "frames": [[4, 4, 120, 120, 0, 32, 43], [132, 4, 120, 120, 0, 32, 43], [260, 4, 120, 120, 0, 32, 43]], "animations": {"all": {"frames": [0, 1, 2]}}});
+
+	//puff sprite sheet
+	pf.Noun.puffAnimSpriteSheet = new c.SpriteSheet({
+    "animations": {"all": {"frames": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]}},
+    "images": ["pf01-puff.png"],
+    "frames": [[900, 3, 0, 0, 0, 48, 47], [3, 3, 100, 96, 0, 47, 47], [109, 3, 97, 95, 0, 45, 47], [212, 3, 94, 93, 0, 43, 47], [312, 3, 88, 88, 0, 41, 44], [406, 3, 79, 84, 0, 35, 41], [491, 3, 74, 79, 0, 33, 39], [571, 3, 65, 72, 0, 28, 36], [642, 3, 62, 64, 0, 27, 33], [710, 3, 56, 57, 0, 25, 30], [772, 3, 43, 46, 0, 20, 23], [821, 3, 33, 36, 0, 14, 16], [860, 3, 16, 17, 0, 5, 6], [882, 3, 6, 6, 0, 0, -1], [894, 3, 0, 0, 0, 48, 47]]}
+		);
 	
 </script>
 </body>
