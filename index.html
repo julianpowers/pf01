@@ -12,6 +12,7 @@
 <body onload="new pf.pf01">
 <canvas id="canvas"></canvas>
 <script type="text/javascript" src="http://code.createjs.com/easeljs-0.6.1.min.js"></script>
+<script type="text/javascript" src="http://code.createjs.com/tweenjs-0.4.1.min.js"></script>
 <script type="text/javascript">
 
 var c = createjs,
@@ -34,19 +35,34 @@ pf.pf01 = function() {
 		centeredContainer.y = canvas.height / 2;
 	}
 
+	function spawnNoun() {
+		var noun = new pf.Noun;
+		noun.x = Math.random()*200 - Math.random()*200;
+		noun.y = Math.random()*200 - Math.random()*200;
+		noun.rotation = Math.random()*30 - Math.random()*30;
+		centeredContainer.addChild(noun);
+
+	}
+
+	function onPress() {
+			spawnNoun();
+	}
+
+
 	resize();
 	window.onresize = resize;
 	c.Ticker.setFPS(30);
 	c.Ticker.addListener(stage);
 	stage.addChild(bgRect);
 	stage.addChild(centeredContainer);
-	centeredContainer.addChild(new pf.Noun);
+	bgRect.onPress = onPress;
+
 }
 	
 	pf.Noun = function() { this.initialize(); };
 	p = pf.Noun.prototype = new c.Container;
 	p.Container_initialize = p.initialize;
-	pf.Noun.libraryAnimSpriteSheet = new c.SpriteSheet({"images": ["pf01-thing01.png"], "frames": [[2, 2, 124, 124, 0, -10, -3], [130, 2, 124, 124, 0, -10, -3], [258, 2, 124, 124, 0, -10, -3]], "animations": {"all": {"frames": [0, 1, 2]}}});
+	pf.Noun.libraryAnimSpriteSheet = new c.SpriteSheet({"images": ["pf01-thing01.png"], "frames": [[4, 4, 120, 120, 0, 32, 43], [132, 4, 120, 120, 0, 32, 43], [260, 4, 120, 120, 0, 32, 43]], "animations": {"all": {"frames": [0, 1, 2]}}});
 	p.initialize = function() {
 		
 		this.Container_initialize();
@@ -54,8 +70,28 @@ pf.pf01 = function() {
 		var noun = this,
 			libraryAnim = new c.BitmapAnimation(pf.Noun.libraryAnimSpriteSheet);
 			
-			noun.addChild(libraryAnim);
-			libraryAnim.gotoAndStop(Math.floor(Math.random() * libraryAnim.spriteSheet._numFrames));
+		function materialize() {
+			c.Tween.get(libraryAnim).to({scaleX: 1, scaleY: 1}, 1000, c.Ease.quintOut);
+
+		}		
+		
+		function dematerialize() {
+			c.Tween.get(libraryAnim).to({scaleX: 0, scaleY: 0}, 1000, c.Ease.quintOut).call(onDematerializeComplete);
+		}
+
+		function onDematerializeComplete() {
+			noun.parent.removeChild(noun);
+		}
+
+		function onPress() {
+			dematerialize();
+		}
+
+		libraryAnim.scaleX = libraryAnim.scaleY = 0;		
+		noun.addChild(libraryAnim);
+		libraryAnim.gotoAndStop(Math.floor(Math.random() * libraryAnim.spriteSheet.getNumFrames()));
+		materialize();
+		noun.onPress = onPress;
 	}
 	
 	
