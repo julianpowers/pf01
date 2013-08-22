@@ -1,4 +1,5 @@
 pf01
 ====
 
-Learning project for Stieg. 
+straight following of presstube.com's cycly-vacuum-cannon tutorial.
+
